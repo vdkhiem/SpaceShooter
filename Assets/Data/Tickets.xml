@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="utf-8"?>
+<JiraTicketCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Tickets>
+    <JiraTicket>
+      <Key>ADVB-5683</Key>
+      <Priority>Could</Priority>
+      <Reporter>Nick.Taylor</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>SM143504315577 - CA202000 Unable to delete 2 cash accounts</Summary>
+      <Description>ISSUE: The client has 2 cash accounts which have not had any transactions posted to them. The only action to the accounts was an import scenario from which the transactions were deleted upon import (prior to release) and the import has been rolled back. When partner try to delete these cash accounts, gets the error message "This record is referenced by at least one 'CashAccount' record. The operation cannot be completed. The client no longer requires these cash accounts and wants them deleted
+
+STEPS TO REPLICATE:
+Checked Sev/Pri
+Replicated in Sandbox Version 2017.1.0.1041 (6.10.0010.85)
+Company: WorldSmart (ID: 6)
+1. At Cash Account (CA202000), select account: EFT Bart, click Delete, system does not allowed with message this record is referenced by at least one ‘CashAccount’ record
+2. Same for account: EFT Holdy
+3. Checked in Cash Account Transactions (CA303000), there aren’t any transactions in the accounts
+
+BUSINESS IMPACT: Med, can't remove unwanted cash accounts (with no transactions) from system
+
+WORK AROUND: N/A
+
+SUGGESTED RESULT: The client no longer requires these cash accounts and wants them deleted
+
+SUPPORT NOTE (KY):
+Sev/Pri as per SLA description
+Tested on Chrome Version 55.0
+Client Permission received
+
+Sandbox in debug env
+http://rdjones-12-4-2017-143457889501.staging.natasha.myob.co.nz</Description>
+      <Type>Bug</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-5493</Key>
+      <Priority>Should</Priority>
+      <Reporter>matt.sealy</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>SM142643482803 - DI: SO505000 Items unable to be released on the Process Invoices and Memos Screen</Summary>
+      <Description>ISSUE: In the RDG Tech Ltd database we have two items which are unable to be released on the SO505000 screen one is a credit memo MBIN400397  This item gives the error no serial/lot number.  The other item MBIN400419,  does not give an error and when it is processed a green tick is shown however no inventory document is created and when the screen is refreshed the item is still there.  This item doesn't have a lot number assigned to it. Both of the stock items involved require lot numbers (and expiry dates) so the issue is how the shipments were processed without lots numbers being entered.  Could you please process these documents.
+
+STEPS TO REPLICATE:
+Checked Sev/Pri
+Replicated in Sandbox Version 2016.1.11.715 (5.30.2741.304)
+Company: RDG Tech Ltd (ID: 4)
+1. Go to Process Invoices and Memos screen (SO505000), select Action: Post Invoice to IN, process both transactions, the credit memo gets error but invoice shown successful
+2. Drill into the Credit memo ref: MBIN400397, at Actions, select Post Invoice to IN, hit the same error
+3. Drill into the shipment, there are no allocation of lot/serial nbr
+4. Drill into Invoice: MBIN400419 in Step 1, item invoiced is ZINC1T-Z1 (non-stock item)
+5. Drill into shipment, click Allocation for the item, it is allocated to ZONEFREIGHT1
+
+BUSINESS IMPACT: Can't release IN to update stock
+
+WORK AROUND: N/A
+
+SUGGESTED RESULT: Could you please process these documents
+
+SUPPORT NOTE (KY):
+Sev/Pri as per SLA description
+Tested on Chrome Version 55.0
+Client Permission received
+
+Sandbox in debug env
+http://fertcolimited-20-3-2017-142378447051.staging.natasha.myob.co.nz</Description>
+      <Type>Bug</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4630</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Latitude</Summary>
+      <Description>Latitude.
+{code}
+DELETE CATran FROM CATran 
+LEFT JOIN GLTran ON GLTran.companyid=CATran.companyid AND GLTran.CATranID=CATran.tranID
+LEFT JOIN CAAdj ON CAAdj.companyid=CATran.companyid AND CAAdj.TranID=CATran.tranID
+LEFT JOIN CADeposit ON CADeposit.companyid=CATran.companyid AND CADeposit.TranID=CATran.tranID
+LEFT JOIN CADepositDetail ON CADepositDetail.companyid=CATran.companyid AND CADepositDetail.TranID=CATran.tranID
+LEFT JOIN CATransfer ON CATransfer.companyid=CATran.companyid AND (CATransfer.TranIDIn=CATran.tranID OR  CATransfer.tranidout=CATran.tranID )
+LEFT JOIN ARPayment ON ARPayment.companyid=CATran.companyid AND ARPayment.CATranID=CATran.tranID
+LEFT JOIN APPayment ON APPayment.companyid=CATran.companyid AND APPayment.CATranID=CATran.tranID
+LEFT JOIN ARPaymentChargeTran ON ARPaymentChargeTran.companyid=CATran.companyid AND ARPaymentChargeTran.CashTranID=CATran.tranID
+LEFT JOIN APPaymentChargeTran ON APPaymentChargeTran.companyid=CATran.companyid AND APPaymentChargeTran.CashTranID=CATran.tranID
+WHERE CATran.Released=0 AND CATran.Reconciled=0 AND CATran.companyid&gt;0 AND CATran.Posted=0
+AND GLTran.companyid IS NULL
+AND CAAdj.companyid  IS NULL
+AND CADepositDetail.companyid IS NULL
+AND CADeposit.companyid  IS NULL
+AND CATransfer.companyid  IS NULL
+AND ARPayment.companyid  IS NULL
+AND APPayment.companyid  IS NULL
+AND ARPaymentChargeTran.companyid  IS NULL
+AND APPaymentChargeTran.companyid  IS NULL;
+
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARAdjust.Released = 0 AND ARAdjust.AdjNbr &lt; ARRegister.AdjCntr
+ AND ARAdjust.CompanyID &gt;0;
+ 
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARRegister.DeletedDatabaseRecord = 1
+ AND ARAdjust.CompanyID &gt;0;
+{code}
+Run validate account balances</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4629</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Jarvis</Summary>
+      <Description>Jarvis.
+{code}
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARAdjust.Released = 0 AND ARAdjust.AdjNbr &lt; ARRegister.AdjCntr
+ AND ARAdjust.CompanyID &gt;0;
+ 
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARRegister.DeletedDatabaseRecord = 1
+ AND ARAdjust.CompanyID &gt;0;
+{code}
+Run validate account balances</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4628</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Gispac</Summary>
+      <Description>Gispac: additional investigation required.
+{code}
+DELETE CATran FROM CATran 
+LEFT JOIN GLTran ON GLTran.companyid=CATran.companyid AND GLTran.CATranID=CATran.tranID
+LEFT JOIN CAAdj ON CAAdj.companyid=CATran.companyid AND CAAdj.TranID=CATran.tranID
+LEFT JOIN CADeposit ON CADeposit.companyid=CATran.companyid AND CADeposit.TranID=CATran.tranID
+LEFT JOIN CADepositDetail ON CADepositDetail.companyid=CATran.companyid AND CADepositDetail.TranID=CATran.tranID
+LEFT JOIN CATransfer ON CATransfer.companyid=CATran.companyid AND (CATransfer.TranIDIn=CATran.tranID OR  CATransfer.tranidout=CATran.tranID )
+LEFT JOIN ARPayment ON ARPayment.companyid=CATran.companyid AND ARPayment.CATranID=CATran.tranID
+LEFT JOIN APPayment ON APPayment.companyid=CATran.companyid AND APPayment.CATranID=CATran.tranID
+LEFT JOIN ARPaymentChargeTran ON ARPaymentChargeTran.companyid=CATran.companyid AND ARPaymentChargeTran.CashTranID=CATran.tranID
+LEFT JOIN APPaymentChargeTran ON APPaymentChargeTran.companyid=CATran.companyid AND APPaymentChargeTran.CashTranID=CATran.tranID
+WHERE CATran.Released=0 AND CATran.Reconciled=0 AND CATran.companyid&gt;0 AND CATran.Posted=0
+AND GLTran.companyid IS NULL
+AND CAAdj.companyid  IS NULL
+AND CADepositDetail.companyid IS NULL
+AND CADeposit.companyid  IS NULL
+AND CATransfer.companyid  IS NULL
+AND ARPayment.companyid  IS NULL
+AND APPayment.companyid  IS NULL
+AND ARPaymentChargeTran.companyid  IS NULL
+AND APPaymentChargeTran.companyid  IS NULL;
+{code}</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4627</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Findex</Summary>
+      <Description>Findex: additional investigation required.
+{code}
+delete APAdjust from APAdjust
+inner join APRegister
+on APAdjust.CompanyID = APRegister.CompanyID
+ and APAdjust.AdjgDocType = APRegister.DocType
+ and APAdjust.AdjgRefNbr = APRegister.RefNbr
+where APAdjust.Released = 0 and APAdjust.AdjNbr &lt; APRegister.LineCntr
+ and APAdjust.CompanyID &gt; 0;
+ 
+delete APAdjust from APAdjust
+inner join APRegister
+on APAdjust.CompanyID = APRegister.CompanyID
+ and APAdjust.AdjgDocType = APRegister.DocType
+ and APAdjust.AdjgRefNbr = APRegister.RefNbr
+where APRegister.DeletedDatabaseRecord = 1
+ and APAdjust.CompanyID &gt; 0;
+{code}
+Run validate account balances</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4626</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Bright Eyes</Summary>
+      <Description>Bright Eyes. Additional investigation of incorrect Recociliation balances is required
+{code}
+DELETE CATran FROM CATran 
+LEFT JOIN GLTran ON GLTran.companyid=CATran.companyid AND GLTran.CATranID=CATran.tranID
+LEFT JOIN CAAdj ON CAAdj.companyid=CATran.companyid AND CAAdj.TranID=CATran.tranID
+LEFT JOIN CADeposit ON CADeposit.companyid=CATran.companyid AND CADeposit.TranID=CATran.tranID
+LEFT JOIN CADepositDetail ON CADepositDetail.companyid=CATran.companyid AND CADepositDetail.TranID=CATran.tranID
+LEFT JOIN CATransfer ON CATransfer.companyid=CATran.companyid AND (CATransfer.TranIDIn=CATran.tranID OR  CATransfer.tranidout=CATran.tranID )
+LEFT JOIN ARPayment ON ARPayment.companyid=CATran.companyid AND ARPayment.CATranID=CATran.tranID
+LEFT JOIN APPayment ON APPayment.companyid=CATran.companyid AND APPayment.CATranID=CATran.tranID
+LEFT JOIN ARPaymentChargeTran ON ARPaymentChargeTran.companyid=CATran.companyid AND ARPaymentChargeTran.CashTranID=CATran.tranID
+LEFT JOIN APPaymentChargeTran ON APPaymentChargeTran.companyid=CATran.companyid AND APPaymentChargeTran.CashTranID=CATran.tranID
+WHERE CATran.Released=0 AND CATran.Reconciled=0 AND CATran.companyid&gt;0 AND CATran.Posted=0
+AND GLTran.companyid IS NULL
+AND CAAdj.companyid  IS NULL
+AND CADepositDetail.companyid IS NULL
+AND CADeposit.companyid  IS NULL
+AND CATransfer.companyid  IS NULL
+AND ARPayment.companyid  IS NULL
+AND APPayment.companyid  IS NULL
+AND ARPaymentChargeTran.companyid  IS NULL
+AND APPaymentChargeTran.companyid  IS NULL;
+
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARAdjust.Released = 0 AND ARAdjust.AdjNbr &lt; ARRegister.AdjCntr
+ AND ARAdjust.CompanyID &gt;0;
+ 
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARRegister.DeletedDatabaseRecord = 1
+ AND ARAdjust.CompanyID &gt;0;
+{code}
+Run validate account balances</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4623</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Totally workwear</Summary>
+      <Description>Totally workwear
+{code}
+DELETE CATran FROM CATran 
+LEFT JOIN GLTran ON GLTran.companyid=CATran.companyid AND GLTran.CATranID=CATran.tranID
+LEFT JOIN CAAdj ON CAAdj.companyid=CATran.companyid AND CAAdj.TranID=CATran.tranID
+LEFT JOIN CADeposit ON CADeposit.companyid=CATran.companyid AND CADeposit.TranID=CATran.tranID
+LEFT JOIN CADepositDetail ON CADepositDetail.companyid=CATran.companyid AND CADepositDetail.TranID=CATran.tranID
+LEFT JOIN CATransfer ON CATransfer.companyid=CATran.companyid AND (CATransfer.TranIDIn=CATran.tranID OR  CATransfer.tranidout=CATran.tranID )
+LEFT JOIN ARPayment ON ARPayment.companyid=CATran.companyid AND ARPayment.CATranID=CATran.tranID
+LEFT JOIN APPayment ON APPayment.companyid=CATran.companyid AND APPayment.CATranID=CATran.tranID
+LEFT JOIN ARPaymentChargeTran ON ARPaymentChargeTran.companyid=CATran.companyid AND ARPaymentChargeTran.CashTranID=CATran.tranID
+LEFT JOIN APPaymentChargeTran ON APPaymentChargeTran.companyid=CATran.companyid AND APPaymentChargeTran.CashTranID=CATran.tranID
+WHERE CATran.Released=0 AND CATran.Reconciled=0 AND CATran.companyid&gt;0 AND CATran.Posted=0
+AND GLTran.companyid IS NULL
+AND CAAdj.companyid  IS NULL
+AND CADepositDetail.companyid IS NULL
+AND CADeposit.companyid  IS NULL
+AND CATransfer.companyid  IS NULL
+AND ARPayment.companyid  IS NULL
+AND APPayment.companyid  IS NULL
+AND ARPaymentChargeTran.companyid  IS NULL
+AND APPaymentChargeTran.companyid  IS NULL;
+
+delete ARAdjust from ARAdjust
+inner join ARRegister
+on ARAdjust.CompanyID = ARRegister.CompanyID
+ and ARAdjust.AdjgDocType = ARRegister.DocType
+ and ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+where ARAdjust.Released = 0 and ARAdjust.AdjNbr &lt; ARRegister.AdjCntr
+ and ARAdjust.CompanyID &gt; 0;
+ 
+delete ARAdjust from ARAdjust
+inner join ARRegister
+on ARAdjust.CompanyID = ARRegister.CompanyID
+ and ARAdjust.AdjgDocType = ARRegister.DocType
+ and ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+where ARRegister.DeletedDatabaseRecord = 1
+ and ARAdjust.CompanyID &gt; 0;
+
+delete APAdjust from APAdjust
+inner join APRegister
+on APAdjust.CompanyID = APRegister.CompanyID
+ and APAdjust.AdjgDocType = APRegister.DocType
+ and APAdjust.AdjgRefNbr = APRegister.RefNbr
+where APAdjust.Released = 0 and APAdjust.AdjNbr &lt; APRegister.LineCntr
+ and APAdjust.CompanyID &gt; 0;
+ 
+delete APAdjust from APAdjust
+inner join APRegister
+on APAdjust.CompanyID = APRegister.CompanyID
+ and APAdjust.AdjgDocType = APRegister.DocType
+ and APAdjust.AdjgRefNbr = APRegister.RefNbr
+where APRegister.DeletedDatabaseRecord = 1
+ and APAdjust.CompanyID &gt; 0;
+{code}
+run validate account balances</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4620</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - REINZ</Summary>
+      <Description>REINZ additional investigation required
+{code}
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARAdjust.Released = 0 AND ARAdjust.AdjNbr &lt; ARRegister.AdjCntr
+ AND ARAdjust.CompanyID &gt;0;
+ 
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARRegister.DeletedDatabaseRecord = 1
+ AND ARAdjust.CompanyID &gt;0;
+{code}
+Run validate account balances
+Use Customization to fix issues [^CorrectMissingGLTrans.zip]</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4619</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Rashays</Summary>
+      <Description>Rashays
+Use Customization to fix issues [^CorrectMissingGLTrans.zip]</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4618</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Fix data consistency issue - Mojo Motorcycles</Summary>
+      <Description>Mojo Motorcycles
+{code}
+DELETE CATran FROM CATran 
+LEFT JOIN GLTran ON GLTran.companyid=CATran.companyid AND GLTran.CATranID=CATran.tranID
+LEFT JOIN CAAdj ON CAAdj.companyid=CATran.companyid AND CAAdj.TranID=CATran.tranID
+LEFT JOIN CADeposit ON CADeposit.companyid=CATran.companyid AND CADeposit.TranID=CATran.tranID
+LEFT JOIN CADepositDetail ON CADepositDetail.companyid=CATran.companyid AND CADepositDetail.TranID=CATran.tranID
+LEFT JOIN CATransfer ON CATransfer.companyid=CATran.companyid AND (CATransfer.TranIDIn=CATran.tranID OR  CATransfer.tranidout=CATran.tranID )
+LEFT JOIN ARPayment ON ARPayment.companyid=CATran.companyid AND ARPayment.CATranID=CATran.tranID
+LEFT JOIN APPayment ON APPayment.companyid=CATran.companyid AND APPayment.CATranID=CATran.tranID
+LEFT JOIN ARPaymentChargeTran ON ARPaymentChargeTran.companyid=CATran.companyid AND ARPaymentChargeTran.CashTranID=CATran.tranID
+LEFT JOIN APPaymentChargeTran ON APPaymentChargeTran.companyid=CATran.companyid AND APPaymentChargeTran.CashTranID=CATran.tranID
+WHERE CATran.Released=0 AND CATran.Reconciled=0 AND CATran.companyid&gt;0 AND CATran.Posted=0
+AND GLTran.companyid IS NULL
+AND CAAdj.companyid  IS NULL
+AND CADepositDetail.companyid IS NULL
+AND CADeposit.companyid  IS NULL
+AND CATransfer.companyid  IS NULL
+AND ARPayment.companyid  IS NULL
+AND APPayment.companyid  IS NULL
+AND ARPaymentChargeTran.companyid  IS NULL
+AND APPaymentChargeTran.companyid  IS NULL;
+
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARAdjust.Released = 0 AND ARAdjust.AdjNbr &lt; ARRegister.AdjCntr
+ AND ARAdjust.CompanyID &gt;0;
+ 
+DELETE ARAdjust FROM ARAdjust
+INNER JOIN ARRegister
+ON ARAdjust.CompanyID = ARRegister.CompanyID
+ AND ARAdjust.AdjgDocType = ARRegister.DocType
+ AND ARAdjust.AdjgRefNbr = ARRegister.RefNbr
+WHERE ARRegister.DeletedDatabaseRecord = 1
+ AND ARAdjust.CompanyID &gt;0;
+{code}
+Run validate account balances</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-4285</Key>
+      <Priority>Could</Priority>
+      <Reporter>matt.sealy</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>Need script to delete the reference of all inactive sub item combinations against the main stock items and only keep the active sub item combinations</Summary>
+      <Description>Need script to delete the reference of all inactive sub item combinations against the main stock items and only keep the active sub item combinations
+
+Totally Workwear
+</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-3390</Key>
+      <Priority>Could</Priority>
+      <Reporter>matt.sealy</Reporter>
+      <Assignee>matt.sealy</Assignee>
+      <Epic>ADVB-378</Epic>
+      <Summary>BackLog - SM123493860895 - PO301000: Ability to update the PO with GL account/Sub Account of associated Project.</Summary>
+      <Description>Description: 
+ISSUE: 
+At present when an inventory item is added PO, account/subaccount column is populated with default account associated with that inventory. When a project is assigned to a PO, the GL account, sub account is not updated with the GL account/sub account associated with that project. 
+
+ 
+STEPS TO REPLICATE: 
+Replicated in Rapid Byte Version 2015.3.0.780 
+Checked Sev/Pri 
+1.create a project with Visibility settings for PO ticked and Defaults account assigned. 
+2.Create a PO and assign this Project , Po not updated with Projects account/subaccount.&amp;nbsp; 
+
+ 
+BUSINESS IMPACT: 
+Manual intervention, possibility of human error in selecting correct account. 
+If account/sub account not updated with Project account/subaccount than incorrect reporting. 
+
+ 
+EXPECTED RESULT: 
+Software to update the account/subaccount column with associated Project’s account/subaccount. 
+
+ 
+WORKAROUND: 
+Manually select the account. 
+
+ 
+Notes: 
+Project: Incoming (Advanced)
+StoryType: Feature
+ExternalRef: </Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-640</Key>
+      <Priority>Could</Priority>
+      <Reporter>paul.munro</Reporter>
+      <Epic>ADVB-378</Epic>
+      <Summary>User is not able to add account number on the ‘hart Of Account’ screen if he occasionally missed that field and pressed saved</Summary>
+      <Description>Description: 
+
+ 
+
+ 
+Steps to repro: 
+
+ 
+1. On the Chart of account screen add an account and don’t fell out the Account number 
+2. Click save 
+Actual result: User will observe the error: ‘Account’ may not be empty 
+3. Fill out the ‘Account’ field 
+4. Click save 
+Actual result: The error still observed 
+P.S. To save the account user now need to remove whole row and add it again, making sure that he didn’t forget to fill it the account field 
+
+ 
+Expected result: I assume user should be able to save the account as long is he filled out the missed filed 
+
+ 
+
+ 
+see the screenshot: 
+
+ 
+Notes: 
+Feature: 
+Milestone: 
+Release: 
+Iteration: 
+Project: Incoming (Advanced)</Description>
+      <Type>Bug</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-633</Key>
+      <Priority>Could</Priority>
+      <Reporter>matt.sealy</Reporter>
+      <Assignee>matt.sealy</Assignee>
+      <Epic>ADVB-378</Epic>
+      <Summary>ACU-I-712 - Require ability to generate and deliver a statement on-demand for a customer</Summary>
+      <Description>Description: *Acceptance Criteria:* 
+
+ * An option in the customer record to generate a statement as at the current date for the customer.
+ * The statement is to consider the current period as current and age accordingly backwards.&amp;nbsp;
+ * The statement can be printed or emailed or exported as PDF / Excel.
+
+ 
+Notes: 
+Feature: 
+Milestone: 
+Release: 
+Iteration: 
+Project: Incoming (Advanced)</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+    <JiraTicket>
+      <Key>ADVB-630</Key>
+      <Priority>Could</Priority>
+      <Reporter>Ada.Jin</Reporter>
+      <Assignee>Ada.Jin</Assignee>
+      <Epic>ADVB-378</Epic>
+      <Summary>ACU-I-489 - Add 'Email Invoice' option on the Process Invoices and Memos SO505000 &gt; Action drop down</Summary>
+      <Description>Description: Add 'Email Invoice' option on the Process Invoices and Memos SO505000 &amp;gt; Action drop down so that I can send out invoices in batch.We can send out invoices in batch on AR module by using AR508000, but we don't have this feature on SO module.Also if you send out SO invoices in batch, system should mark the 'emailed' flag for each individual invoices correctly.
+Notes: 
+Feature: 
+Milestone: 
+Release: 
+Iteration: 
+Project: Incoming (Advanced)</Description>
+      <Type>Story</Type>
+    </JiraTicket>
+  </Tickets>
+</JiraTicketCollection>

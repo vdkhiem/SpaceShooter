@@ -250,3 +250,10 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# Added by Sebastian
+Temp
+Library/*
+Library/metadata/*
+*.info
+Library/metadata/fc/fcf7219bab7fe46a1ad266029b2fee19

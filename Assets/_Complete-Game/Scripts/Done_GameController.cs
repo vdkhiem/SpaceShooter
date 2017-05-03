@@ -78,7 +78,7 @@ public class Done_GameController : MonoBehaviour
 	
 	public void GameOver ()
 	{
-		gameOverText.text = "Game Over!";
+		gameOverText.text = "You SUCK - Failed Jira Tasks!";
 		gameOver = true;
 	}
 }
