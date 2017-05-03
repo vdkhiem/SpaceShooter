@@ -13,18 +13,23 @@ public class Done_PlayerController : MonoBehaviour
 	public float tilt;
 	public Done_Boundary boundary;
 
-	public GameObject shot;
+    public GameObject[] MYOBShot;
+
+    public GameObject shot;
 	public Transform shotSpawn;
 	public float fireRate;
 	 
 	private float nextFire;
+    private int shotIndex = -1;
 	
 	void Update ()
 	{
 		if (Input.GetButton("Fire1") && Time.time > nextFire) 
 		{
 			nextFire = Time.time + fireRate;
-			Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+            shotIndex = shotIndex + 1 >= MYOBShot.Length ? 0 : shotIndex + 1;
+
+			Instantiate(MYOBShot[shotIndex], shotSpawn.position, shotSpawn.rotation);
 			GetComponent<AudioSource>().Play ();
 		}
 	}
