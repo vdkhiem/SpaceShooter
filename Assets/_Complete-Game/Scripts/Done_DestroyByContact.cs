@@ -31,6 +31,7 @@ public class Done_DestroyByContact : MonoBehaviour
 		if (explosion != null)
 		{
 			Instantiate(explosion, transform.position, transform.rotation);
+            Helper.Add3DTextToGameObject(explosion, "JIRA Ticket Synced");
 		}
 
 		if (other.tag == "Player")

@@ -26,5 +26,21 @@ namespace _2ToTango
                 fs.Close();
             }
         }
+
+        public static JiraTicketCollection Load(string filename)
+        {
+            JiraTicketCollection obj = null;
+            if (File.Exists(filename))
+            {
+                var serializer = new XmlSerializer(typeof(JiraTicketCollection));
+                using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    obj = (JiraTicketCollection)serializer.Deserialize(fs);
+
+                    fs.Close();
+                }
+            }
+            return obj;
+        }
     }
 }
